@@ -128,7 +128,35 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
+    def minimax(self, gameState, depth, agentIndex, maximizingPlayer):
+        # If the state is a terminal state or depth is far enough
+        if (depth > self.depth or gameState.isWin() or gameState.isLose()):
+            return self.evaluationFunction(gameState), Directions.STOP
+        moves = gameState.getLegalActions(agentIndex)
+        if maximizingPlayer: # Pacman
+            bestValue = -float('inf')
+            if len(moves) > 0: # If there are legal moves
+                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, 1, False)[0] for move in moves]
+            bestValue = max(values)
+            bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
+            chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
+            bestMove = moves[chosenIndex]
+            return bestValue, bestMove
 
+        else: # Minimizing player
+            bestValue = float('inf')
+            if (agentIndex < (gameState.getNumAgents() - 1)): # If the agent is not the last one (last ghost)
+                if len(moves) > 0: # If there are legal moves
+                    values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, agentIndex + 1, False)[0] for move in moves]
+            else: # If the agent is the last (the last ghost)
+                if len(moves) > 0: # If the are legal moves
+                    values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth + 1, 0, True)[0] for move in moves]
+            bestValue = min(values)
+            bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
+            chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
+            bestMove = moves[chosenIndex]
+            return bestValue, bestMove
+        
     def getAction(self, gameState):
         """
           Returns the minimax action from the current gameState using self.depth
@@ -147,6 +175,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
+        chosenAction = self.minimax(gameState, 1, 0, True)[1]
+        return chosenAction
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
