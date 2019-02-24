@@ -201,7 +201,39 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def expectimax(depth, state, agentIndex):
+        
+            maxLayer = 0
+            
+            #Min node
+            if agentIndex == state.getNumAgents():
+                if depth == self.depth:
+                    #In max depth the state is re-evaluated
+                    evaluation = self.evaluationFunction(state)
+                    return evaluation
+                else: #if max depth is not yet achieved, start another round of the same
+                    return expectimax(depth + 1, state, 0)
+            
+            #exp node
+            else:
+                moves = state.getLegalActions(agentIndex)
+                if len(moves) == 0:
+                    evaluation = self.evaluationFunction(state)
+                    return evaluation
+                #every possible consequent move is retrieved as the next layer of nodes
+                nodes = (expectimax(depth, state.generateSuccessor(agentIndex, move), agentIndex + 1) for move in moves)
+
+                #from the maximum layer the best option is returned
+                if agentIndex == maxLayer:
+                    return max(nodes)
+                #return expectimax values if not in max layer
+                else:
+                    list = list(nodes)
+                    return sum(list) / len(list)
+        #Executing the expectimax, going through and sorting the results with their indices and selecting the one with the highest scores
+        action = max(gameState.getLegalActions(0), key=lambda x: expectimax(1, gameState.generateSuccessor(0, x), 1))
+
+        return action
 
 def betterEvaluationFunction(currentGameState):
     """
