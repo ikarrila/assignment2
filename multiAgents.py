@@ -205,19 +205,18 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         
             maxLayer = 0
             
-            #Min node
+            #in min layer
             if agentIndex == state.getNumAgents():
                 if depth == self.depth:
                     #In max depth the state is re-evaluated
                     evaluation = self.evaluationFunction(state)
                     return evaluation
-                else: #if max depth is not yet achieved, start another round of the same
-                    return expectimax(depth + 1, state, 0)
-            
-            #exp node
+                else: #if max depth is not yet achieved, start another round
+                    return expectimax(depth + 1, state, maxLayer)
+            #other than min layer
             else:
                 moves = state.getLegalActions(agentIndex)
-                if len(moves) == 0:
+                if len(moves) == 0: #in case there are no possible moves, re-evaluate
                     evaluation = self.evaluationFunction(state)
                     return evaluation
                 #every possible consequent move is retrieved as the next layer of nodes
@@ -230,6 +229,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 else:
                     list = list(nodes)
                     return sum(list) / len(list)
+                
         #Executing the expectimax, going through and sorting the results with their indices and selecting the one with the highest scores
         action = max(gameState.getLegalActions(0), key=lambda x: expectimax(1, gameState.generateSuccessor(0, x), 1))
 
