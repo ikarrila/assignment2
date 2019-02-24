@@ -135,8 +135,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         moves = gameState.getLegalActions(agentIndex)
         if maximizingPlayer: # Pacman
             bestValue = -float('inf')
-            if len(moves) > 0: # If there are legal moves
-                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, 1, False)[0] for move in moves]
+            values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, 1, False)[0] for move in moves]
             bestValue = max(values)
             bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
             chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
@@ -146,11 +145,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         else: # Minimizing player
             bestValue = float('inf')
             if (agentIndex < (gameState.getNumAgents() - 1)): # If the agent is not the last one (last ghost)
-                if len(moves) > 0: # If there are legal moves
-                    values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, agentIndex + 1, False)[0] for move in moves]
+                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, agentIndex + 1, False)[0] for move in moves]
             else: # If the agent is the last (the last ghost)
-                if len(moves) > 0: # If the are legal moves
-                    values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth + 1, 0, True)[0] for move in moves]
+                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth + 1, 0, True)[0] for move in moves]
             bestValue = min(values)
             bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
             chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
