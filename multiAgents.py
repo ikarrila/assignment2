@@ -184,7 +184,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
-def alphabeta(self, gameState, depth, agentIndex):
+    def alphabeta(self, gameState, depth, agentIndex):
 
         # Alpha and beta are initialized to -inf/inf
         a = float('-inf')
