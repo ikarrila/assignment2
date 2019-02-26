@@ -129,12 +129,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
     def minimax(self, gameState, depth, agentIndex, maximizingPlayer):
-        # If the state is a terminal state or depth is far enough
-        if (depth > self.depth or gameState.isWin() or gameState.isLose()):
+
+        # If the state is a terminal state or the depth is reached
+        if (depth == 0 or gameState.isWin() or gameState.isLose()):
             return self.evaluationFunction(gameState), Directions.STOP
         moves = gameState.getLegalActions(agentIndex)
-        
-        if maximizingPlayer: # Maximixing player
+
+        if maximizingPlayer: # Pacman
             bestValue = -float('inf')
             values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, 1, False)[0] for move in moves]
             bestValue = max(values)
@@ -148,12 +149,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
             if (agentIndex < (gameState.getNumAgents() - 1)): # If the agent is not the last one (last ghost)
                 values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, agentIndex + 1, False)[0] for move in moves]
             else: # If the agent is the last (the last ghost)
-                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth + 1, 0, True)[0] for move in moves]
+                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth - 1, 0, True)[0] for move in moves]
             bestValue = min(values)
             bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
             chosenIndex = random.choice(bestIndices) # Choose randomly from the best moves
             bestMove = moves[chosenIndex]
             return bestValue, bestMove
+    
         
     def getAction(self, gameState):
         """
@@ -175,7 +177,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         
         # Initial call for minimax function
-        chosenAction = self.minimax(gameState, 1, 0, True)[1]
+        chosenAction = self.minimax(gameState, self.depth, 0, True)[1]
         return chosenAction
         util.raiseNotDefined()
 
