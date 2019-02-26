@@ -227,8 +227,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                     return max(nodes)
                 #return expectimax values if not in max layer
                 else:
-                    list = list(nodes)
-                    return sum(list) / len(list)
+                    x = list(nodes)
+                    return sum(x) / len(x)
                 
         #Executing the expectimax, going through and sorting the results with their indices and selecting the one with the highest scores
         action = max(gameState.getLegalActions(0), key=lambda x: expectimax(1, gameState.generateSuccessor(0, x), 1))
