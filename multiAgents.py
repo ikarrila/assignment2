@@ -133,12 +133,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if (depth > self.depth or gameState.isWin() or gameState.isLose()):
             return self.evaluationFunction(gameState), Directions.STOP
         moves = gameState.getLegalActions(agentIndex)
-        if maximizingPlayer: # Pacman
+        
+        if maximizingPlayer: # Maximixing player
             bestValue = -float('inf')
             values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, 1, False)[0] for move in moves]
             bestValue = max(values)
             bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
-            chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
+            chosenIndex = random.choice(bestIndices) # Choose randomly from the best moves
             bestMove = moves[chosenIndex]
             return bestValue, bestMove
 
@@ -150,7 +151,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth + 1, 0, True)[0] for move in moves]
             bestValue = min(values)
             bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
-            chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
+            chosenIndex = random.choice(bestIndices) # Choose randomly from the best moves
             bestMove = moves[chosenIndex]
             return bestValue, bestMove
         
@@ -172,6 +173,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
+        
+        # Initial call for minimax function
         chosenAction = self.minimax(gameState, 1, 0, True)[1]
         return chosenAction
         util.raiseNotDefined()
@@ -181,11 +184,93 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
+def alphabeta(self, gameState, depth, agentIndex):
+
+        # Alpha and beta are initialized to -inf/inf
+        a = float('-inf')
+        b = float('inf')
+        # Best value is initialized to -inf
+        bestValue = float('-inf')
+        # If no better action is calculated, stop is a preferred action
+        bestMove = Directions.STOP
+        # If the state is a terminal state or the depth is reached
+        if (depth <= 0 or gameState.isWin() or gameState.isLose()):
+            return self.evaluationFunction(gameState), bestMove
+        # Get all legal moves of the agent
+        moves = gameState.getLegalActions(agentIndex)
+        if len(moves) == 0: #If there are no legal moves
+            return self.evaluationFunction(gameState), bestMove
+        # Loop though all actions
+        for move in moves:
+            bestValue = self.alphabeta_min(gameState.generateSuccessor(agentIndex, move), a, b, depth, 1)[0]
+            # Update alpha if it was smaller than the best value and get the best move
+            if a < bestValue:
+                a = bestValue
+                bestMove = move
+        return bestValue, bestMove
+
+    def alphabeta_max(self, gameState, a, b, depth, agentIndex):
+
+        # Best value is initialized to -inf first
+        bestValue = float('-inf')
+        # If no better action is calculated, stop is a preferred action
+        bestMove = Directions.STOP
+        # If the state is a terminal state or the depth is reached
+        if (depth <= 0 or gameState.isWin() or gameState.isLose()):
+            return self.evaluationFunction(gameState), bestMove
+        # Get all legal moves of the agent
+        moves = gameState.getLegalActions(agentIndex)
+        if len(moves) == 0: #If there are no legal moves
+            return self.evaluationFunction(gameState), bestMove
+        else:
+            # Loop through all legal moves
+            for move in moves:
+                value = self.alphabeta_min(gameState.generateSuccessor(agentIndex, move), a, b, depth, 1)[0]
+                bestValue = max(bestValue, value)
+                if bestValue > b:
+                    bestMove = move
+                    return bestValue, bestMove
+                # Update alpha
+                a = max(a, bestValue)
+            return bestValue, bestMove
+
+    def alphabeta_min(self, gameState, a, b, depth, agentIndex):
+
+        # Best value is initialized to inf first
+        bestValue = float('inf')
+        # If no better action is calculated, stop is a preferred action
+        bestMove = Directions.STOP
+        # If the state is a terminal state or the depth is reached
+        if (depth <= 0 or gameState.isWin() or gameState.isLose()):
+            return self.evaluationFunction(gameState), Directions.STOP
+        # Get all legal moves of the agent
+        moves = gameState.getLegalActions(agentIndex)
+        if len(moves) == 0: # If there are no legal moves
+            return self.evaluationFunction(gameState), bestMove
+        else:
+            # Loop through all legal moves
+            for move in moves:
+                if (agentIndex < (gameState.getNumAgents() - 1)): # If the agent is not the last one (last ghost)
+                    value = self.alphabeta_min(gameState.generateSuccessor(agentIndex, move), a, b, depth, agentIndex + 1)[0]
+                else: # If the agent is the last agent (last ghost)
+                    value = self.alphabeta_max(gameState.generateSuccessor(agentIndex, move), a, b, depth - 1, 0)[0]
+                bestValue = min(bestValue, value)
+                if (bestValue < a):
+                    bestMove = move
+                    return bestValue, bestMove
+                # Update beta
+                b = min(b, bestValue)
+            return bestValue, bestMove
+    
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        
+        # Initial call for alphabeta function
+        chosenAction = self.alphabeta(gameState, self.depth, 0)[1]
+        return chosenAction
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
