@@ -74,19 +74,23 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
+        #initialing modifiers
         distanceMod = -50
         foodDistanceMod = -3
         foodCountMod = 1000
         
+        #retrieving food data and distace to nearest ghost
         food = newFood.asList()
         foodCount = foodCountMod * len(food)
         Ghost_nearest = min([manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates])
         
+        #food distance is either distance to nearest food or infinite
         if food:
             F_Distance = foodDistanceMod * min([manhattanDistance(newPos, f) for f in food])
         else:
             F_Distance = float("inf")
         
+        #ghost distance is either distance to nearest ghost or -infinite
         if Ghost_nearest:
             G_Distance = distanceMod/Ghost_nearest
         else:
@@ -129,18 +133,16 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
     def minimax(self, gameState, depth, agentIndex, maximizingPlayer):
-
-        # If the state is a terminal state or the depth is reached
-        if (depth == 0 or gameState.isWin() or gameState.isLose()):
+        # If the state is a terminal state or depth is far enough
+        if (depth > self.depth or gameState.isWin() or gameState.isLose()):
             return self.evaluationFunction(gameState), Directions.STOP
         moves = gameState.getLegalActions(agentIndex)
-
         if maximizingPlayer: # Pacman
             bestValue = -float('inf')
             values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, 1, False)[0] for move in moves]
             bestValue = max(values)
             bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
-            chosenIndex = random.choice(bestIndices) # Choose randomly from the best moves
+            chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
             bestMove = moves[chosenIndex]
             return bestValue, bestMove
 
@@ -149,13 +151,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
             if (agentIndex < (gameState.getNumAgents() - 1)): # If the agent is not the last one (last ghost)
                 values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth, agentIndex + 1, False)[0] for move in moves]
             else: # If the agent is the last (the last ghost)
-                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth - 1, 0, True)[0] for move in moves]
+                values = [self.minimax(gameState.generateSuccessor(agentIndex, move), depth + 1, 0, True)[0] for move in moves]
             bestValue = min(values)
             bestIndices = [index for index in range(len(values)) if values[index] == bestValue]
-            chosenIndex = random.choice(bestIndices) # Choose randomly from the best moves
+            chosenIndex = random.choice(bestIndices) #Choose randomly from the best moves
             bestMove = moves[chosenIndex]
             return bestValue, bestMove
-    
         
     def getAction(self, gameState):
         """
@@ -175,9 +176,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        
-        # Initial call for minimax function
-        chosenAction = self.minimax(gameState, self.depth, 0, True)[1]
+        chosenAction = self.minimax(gameState, 1, 0, True)[1]
         return chosenAction
         util.raiseNotDefined()
 
@@ -187,7 +186,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
 
     def alphabeta(self, gameState, depth, agentIndex):
-
+    
         # Alpha and beta are initialized to -inf/inf
         a = float('-inf')
         b = float('inf')
@@ -262,18 +261,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                     return bestValue, bestMove
                 # Update beta
                 b = min(b, bestValue)
-            return bestValue, bestMove
-    
+        return bestValue, bestMove
+
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        
         # Initial call for alphabeta function
         chosenAction = self.alphabeta(gameState, self.depth, 0)[1]
         return chosenAction
-        util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -330,7 +327,37 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #retrieving data regarding game state
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newCapsules = currentGameState.getCapsules()
+    
+    #default values for variables
+    food = newFood.asList()
+    foodCount = - 10 * len(food)
+    capsule = 0
+    cap = 50
+    distance_G = -600
+    nearestFood = 0
+    Gmod = -2
+
+    #determining value for capsules
+    if newCapsules:
+        capsule = min([manhattanDistance(newPos, caps) for caps in newCapsules])
+        cap = -3 / capsule
+
+    #distance to ghost and the value it has
+    ghost = min([manhattanDistance(newPos, ghost.getPosition()) for ghost in newGhostStates])
+    if ghost:
+        distance_G = Gmod / ghost
+
+    #distance to to food
+    if food:
+        nearestFood = min([manhattanDistance(newPos, f) for f in food])
+
+    #total score
+    return Gmod * nearestFood + distance_G + foodCount + cap
 
 # Abbreviation
 better = betterEvaluationFunction
