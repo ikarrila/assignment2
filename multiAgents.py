@@ -178,7 +178,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         chosenAction = self.minimax(gameState, 1, 0, True)[1]
         return chosenAction
-        util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
